@@ -15,4 +15,5 @@
 총 20%~30%
 
 Yolov5(GNU Affero General Public License v3.0)
+
 https://github.com/ultralytics/yolov5
