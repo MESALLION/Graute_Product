@@ -13,3 +13,6 @@
 병합 : 0% (Git으로 병합하였으나 모든 코드들의 다듬기 필요)
 
 총 20%~30%
+
+Yolov5(GNU Affero General Public License v3.0)
+https://github.com/ultralytics/yolov5
