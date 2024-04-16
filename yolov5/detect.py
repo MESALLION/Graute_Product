@@ -35,12 +35,17 @@ import os
 import platform
 import sys
 from pathlib import Path
-import pathlib
+import torch
+
 # posixpath때문에
+import pathlib
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
-import torch
+# 결과값을 웹브라우저 넘기기 위한 import
+import requests
+from datetime import datetime
+
 
 # 파일 경로 설정
 FILE = Path(__file__).resolve()
@@ -78,6 +83,35 @@ from utils.general import (
 )
 # utils.torch_utils 모듈에서 select_device, smart_inference_mode 가져오기
 from utils.torch_utils import select_device, smart_inference_mode
+
+# 전역 변수 - 추가된 코드
+DRONE_DETECTED = False
+LAST_DETECTED_TIME = None
+
+# 감지된 드론의 이미지와 시간을 웹 서버로 전송 - 추가된 코드
+def send_detection(image_path, detection_time):
+    files = {'image': open(image_path, 'rb')}
+    data = {'time': detection_time.strftime('%Y-%m-%d %H:%M:%S')}
+    response = requests.post('http://127.0.0.1:8000/pybo/upload', files=files, data=data)
+    print('Detection sent. Status code:', response.status_code)
+
+# 드론이 사라진 후 경과 시간 계산 및 전송 - 추가된 코드
+def calculate_and_send_elapsed_time():
+    global LAST_DETECTED_TIME, DRONE_DETECTED
+    if DRONE_DETECTED:
+        elapsed_time = datetime.now() - LAST_DETECTED_TIME
+        data = {'elapsed_time': elapsed_time.total_seconds()}
+        response = requests.post('http://127.0.0.1:8000/pybo/upload_time', data=data)
+        print('Elapsed time sent. Status code:', response.status_code)
+        DRONE_DETECTED = False
+
+def process_detections(detections, im0):
+    # 드론 감지 결과에 따라 이미지에 영역을 그리는 부분
+    for det in detections:
+        if det['label'] == 'drone':
+            xmin, ymin, xmax, ymax = det['bbox']
+            cv2.rectangle(im0, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+    return im0
 
 
 # 추론을 실행하는 함수
@@ -215,14 +249,31 @@ def run(
                     writer.writeheader()
                 writer.writerow(data)
 
-        # 예측 처리
+        # 예측 처리 - 추가
         for i, det in enumerate(pred):  # 이미지별
+            global DRONE_DETECTED, LAST_DETECTED_TIME  # 전역 변수 사용 선언 추가
             seen += 1
             if webcam:  # 배치 크기 >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
                 s += f"{i}: "
             else:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, "frame", 0)
+
+            path_obj = Path(p)
+            save_path = str(save_dir / path_obj.name)  # 이미지 저장 경로
+
+            # 드론 감지 및 전송 로직 추가 - 시작
+            if len(det) and names[int(det[0, -1])] == 'drone':  # 드론 클래스가 감지된 경우
+                if not DRONE_DETECTED:
+                    DRONE_DETECTED = True
+                    LAST_DETECTED_TIME = datetime.now()
+                    cv2.imwrite(save_path, im0)  # 이미지 저장
+                    send_detection(save_path, LAST_DETECTED_TIME)  # 감지 정보 전송
+            else:
+                if DRONE_DETECTED:
+                    calculate_and_send_elapsed_time()  # 경과 시간 전송
+                    DRONE_DETECTED = False  # 감지 상태 초기화
+            # 드론 감지 및 전송 로직 추가 - 끝
 
             p = Path(p)  # Path로 변환
             save_path = str(save_dir / p.name)  # im.jpg # 이미지 저장 경로

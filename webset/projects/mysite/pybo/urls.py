@@ -1,8 +1,8 @@
 from django.urls import path
-
-from . import views
+from .views import detection_list, upload, upload_time
 
 urlpatterns = [
-    path('', views.index),
-    path('receive_detection/', views.receive_detection, name='receive_detection'),
+    path('', detection_list, name='detection_list'),
+    path('upload', upload, name='upload'),
+    path('upload_time', upload_time, name='upload_time'),
 ]

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detection List</title>
+</head>
+<body>
+    <h1>Detection List</h1>
+    <ul>
+        {% if detections %}
+            {% for detection in detections %}
+            <li>{{ detection.detection_time }} - <img src="{{ detection.image.url }}" width="100"></li>
+            {% endfor %}
+        {% else %}
+            <p>감지된 드론 없음</p>
+        {% endif %}
+    </ul>
+</body>
