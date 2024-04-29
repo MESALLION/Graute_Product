@@ -8,7 +8,8 @@
     <ul>
         {% if detections %}
             {% for detection in detections %}
-            <li>{{ detection.detection_time }} - <img src="{{ detection.image.url }}" width="100"></li>
+            <li><img src="{{ detection.image.url }}" width="500"></li>
+            <li>{{ detection.detection_time }} - {{ detection.elapsed_time }}</li>
             {% endfor %}
         {% else %}
             <p>감지된 드론 없음</p>
