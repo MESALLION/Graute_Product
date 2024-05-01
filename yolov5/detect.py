@@ -84,18 +84,21 @@ from utils.general import (
 # utils.torch_utils 모듈에서 select_device, smart_inference_mode 가져오기
 from utils.torch_utils import select_device, smart_inference_mode
 
-# 전역 변수 - 추가된 코드
+# 추가한 코드
+# 전역 변수
 DRONE_DETECTED = False
 LAST_DETECTED_TIME = None
 
-# 감지된 드론의 이미지와 시간을 웹 서버로 전송 - 추가된 코드
+# 추가한 코드
+# 감지된 드론의 이미지와 시간을 웹 서버로 전송
 def send_detection(image_path, detection_time):
     files = {'image': open(image_path, 'rb')}
     data = {'time': detection_time.strftime('%Y-%m-%d %H:%M:%S')}
     response = requests.post('http://127.0.0.1:8000/pybo/upload', files=files, data=data)
     print('Detection sent. Status code:', response.status_code)
 
-# 드론이 사라진 후 경과 시간 계산 및 전송 - 추가된 코드
+# 추가한 코드
+# 드론이 사라진 후 경과 시간 계산 및 전송
 def calculate_and_send_elapsed_time():
     global LAST_DETECTED_TIME, DRONE_DETECTED
     if DRONE_DETECTED:
@@ -104,14 +107,6 @@ def calculate_and_send_elapsed_time():
         response = requests.post('http://127.0.0.1:8000/pybo/upload_time', data=data)
         print('Elapsed time sent. Status code:', response.status_code)
         DRONE_DETECTED = False
-
-def process_detections(detections, im0):
-    # 드론 감지 결과에 따라 이미지에 영역을 그리는 부분
-    for det in detections:
-        if det['label'] == 'drone':
-            xmin, ymin, xmax, ymax = det['bbox']
-            cv2.rectangle(im0, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-    return im0
 
 
 # 추론을 실행하는 함수
@@ -268,7 +263,7 @@ def run(
                     DRONE_DETECTED = True
                     LAST_DETECTED_TIME = datetime.now()
                     cv2.imwrite(save_path, im0)  # 이미지 저장
-                    send_detection(save_path, LAST_DETECTED_TIME)  # 감지 정보 전송
+                    # send_detection(save_path, LAST_DETECTED_TIME)  # 감지 정보 전송
             else:
                 if DRONE_DETECTED:
                     calculate_and_send_elapsed_time()  # 경과 시간 전송
@@ -328,6 +323,11 @@ def run(
             if save_img:
                 if dataset.mode == "image":
                     cv2.imwrite(save_path, im0)
+                    if os.path.exists(save_path):  # 파일 존재 확인
+                        print(f"File saved at {save_path}, sending detection...")
+                        send_detection(save_path, LAST_DETECTED_TIME)  # 이미지 전송
+                    else:
+                        print(f"Failed to save file at {save_path}")
                 else:  # 'video' 또는 'stream'
                     if vid_path[i] != save_path:  # 새로운 비디오
                         vid_path[i] = save_path
@@ -339,9 +339,14 @@ def run(
                             h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                         else:  # 스트림
                             fps, w, h = 30, im0.shape[1], im0.shape[0]
-                        save_path = str(Path(save_path).with_suffix(".mp4"))  # 결과 비디오에 *.mp4 확장자 강제 적용
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
                     vid_writer[i].write(im0)
+                    vid_writer[i].release()  # 비디오 파일 닫기
+                    if os.path.exists(save_path):  # 파일 존재 확인
+                        print(f"Video file saved at {save_path}, sending detection...")
+                        send_detection(save_path, LAST_DETECTED_TIME)  # 비디오 전송
+                    else:
+                        print(f"Failed to save video at {save_path}")
 
         # 시간 출력 (추론만)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")

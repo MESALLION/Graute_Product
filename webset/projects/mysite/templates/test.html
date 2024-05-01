@@ -1,9 +1,0 @@
-{% if image %}
-    <ul>
-    {% for image in image %}
-        <li><a href="/pybo/{{ question.id }}/">{{ question.subject }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>질문이 없습니다.</p>
-{% endif %}
