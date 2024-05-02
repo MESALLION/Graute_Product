@@ -8,6 +8,7 @@
     <ul>
         {% if detections %}
             {% for detection in detections %}
+        <!-- 각각의 감지 항목에 대한 반복문 -->
             <li><img src="{{ detection.image.url }}" width="500"></li>
             <li>{{ detection.detection_time }} - {{ detection.elapsed_time }}</li>
             {% endfor %}
