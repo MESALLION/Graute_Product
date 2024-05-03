@@ -1,33 +1,3 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
-"""
-Run YOLOv5 detection inference on images, videos, directories, globs, YouTube, webcam, streams, etc.
-
-Usage - sources:
-    $ python detect.py --weights yolov5s.pt --source 0                               # webcam
-                                                     img.jpg                         # image
-                                                     vid.mp4                         # video
-                                                     screen                          # screenshot
-                                                     path/                           # directory
-                                                     list.txt                        # list of images
-                                                     list.streams                    # list of streams
-                                                     'path/*.jpg'                    # glob
-                                                     'https://youtu.be/LNwODJXcvt4'  # YouTube
-                                                     'rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP stream
-
-Usage - formats:
-    $ python detect.py --weights yolov5s.pt                 # PyTorch
-                                 yolov5s.torchscript        # TorchScript
-                                 yolov5s.onnx               # ONNX Runtime or OpenCV DNN with --dnn
-                                 yolov5s_openvino_model     # OpenVINO
-                                 yolov5s.engine             # TensorRT
-                                 yolov5s.mlmodel            # CoreML (macOS-only)
-                                 yolov5s_saved_model        # TensorFlow SavedModel
-                                 yolov5s.pb                 # TensorFlow GraphDef
-                                 yolov5s.tflite             # TensorFlow Lite
-                                 yolov5s_edgetpu.tflite     # TensorFlow Edge TPU
-                                 yolov5s_paddle_model       # PaddlePaddle
-"""
-
 # 의존성 import
 import argparse
 import csv
@@ -35,12 +5,19 @@ import os
 import platform
 import sys
 from pathlib import Path
-import pathlib
+import torch
+
 # posixpath때문에
+import pathlib
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
-import torch
+# 결과값을 웹브라우저 넘기기 위한 import
+import requests
+from datetime import datetime
+
+# 추가한 코드(딜레이용)
+import time
 
 # 파일 경로 설정
 FILE = Path(__file__).resolve()
@@ -78,6 +55,50 @@ from utils.general import (
 )
 # utils.torch_utils 모듈에서 select_device, smart_inference_mode 가져오기
 from utils.torch_utils import select_device, smart_inference_mode
+
+# 추가한 코드
+# 전역변수
+DRONE_DETECTED = False
+LAST_DETECTED_TIME = None
+
+# 추가한 코드
+# 드론 감지 로직을 처리하는 함수
+def detect_drone(det, names, path, save_dir, im0):
+    global DRONE_DETECTED, LAST_DETECTED_TIME
+    # 드론 감지 및 이미지 저장
+    if len(det) and names[int(det[0, -1])] == 'drone':
+        if not DRONE_DETECTED:
+            DRONE_DETECTED = True
+            LAST_DETECTED_TIME = datetime.now()
+            save_path = str(save_dir / Path(path).name)
+            print(type(im0))
+            print(im0.shape)
+            cv2.imwrite(save_path, im0)  # 이미지 저장
+            send_detection(save_path, LAST_DETECTED_TIME)  # 웹 서버로 전송
+    else:
+        if DRONE_DETECTED:
+            calculate_and_send_elapsed_time()  # 경과 시간 전송
+            DRONE_DETECTED = False  # 감지 상태 초기화
+
+# 추가한 코드
+# 경과 시간 계산 및 전송 함수
+def calculate_and_send_elapsed_time():
+    global LAST_DETECTED_TIME, DRONE_DETECTED
+    if DRONE_DETECTED:
+        elapsed_time = datetime.now() - LAST_DETECTED_TIME
+        data = {'elapsed_time': elapsed_time.total_seconds()}
+        response = requests.post('http://127.0.0.1:8000/pybo/upload_time', data=data)
+        print('Elapsed time sent. Status code:', response.status_code)
+        DRONE_DETECTED = False
+
+
+# 추가한 코드
+# 감지된 드론의 이미지와 시간을 웹 서버로 전송
+def send_detection(image_path, detection_time):
+    files = {'image': open(image_path, 'rb')}
+    data = {'time': detection_time.strftime('%Y-%m-%d %H:%M:%S')}
+    response = requests.post('http://127.0.0.1:8000/pybo/upload', files=files, data=data)
+    print('Detection sent. Status code:', response.status_code)
 
 
 # 추론을 실행하는 함수
@@ -217,6 +238,10 @@ def run(
 
         # 예측 처리
         for i, det in enumerate(pred):  # 이미지별
+            # 추가한 코드 변수할당
+            p, im0, frame = path[i], im0s[i].copy(), dataset.count
+            # 추가한 코드 우리가 만든 함수 호출
+            detect_drone(det, model.names, path, save_dir, im0)
             seen += 1
             if webcam:  # 배치 크기 >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
