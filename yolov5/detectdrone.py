@@ -112,7 +112,7 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names):
     # 이미지 전송 함수 호출
     send_detection(img_save_path, datetime.now())
     # 이미지 전송 상태 메시지 출력
-    print(f"Image with detections saved and sent. Path: {img_save_path}")
+    print(f"이미지 저장 및 전송완료. Path: {img_save_path}")
 
 # 추가한 코드
 # 감지된 드론의 이미지와 시간을 웹 서버로 전송
@@ -124,7 +124,7 @@ def send_detection(image_path, detection_time):
     # 보낼 곳의 좌표
     response = requests.post('http://127.0.0.1:8000/pybo/upload', files=files, data=data)
     # 확인코드
-    print('Detection sent. Status code:', response.status_code)
+    print('감지 정보 전송. Status code:', response.status_code)
 
 # 추가한 코드
 # 드론이 사라진 후 경과 시간 계산 및 전송
