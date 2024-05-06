@@ -88,7 +88,7 @@ DRONE_DETECTED = False
 LAST_DETECTED_TIME = None
 
 # 드론 감지 영역을 이미지에 그리고 저장 후 웹 서버로 전송합니다.
-def draw_boxes_and_send(image, boxes, path, save_dir, names):
+def draw_boxes_and_send(image, boxes, path, save_dir, names, now):
     # image = dataset의 이미지
     # boxes = 박스를 그릴 감지 정보(tensor)
     # path = dateset의 path
@@ -105,8 +105,9 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names):
             cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
             cv2.putText(image, label, (int(x1), int(y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
+    time = now.strftime('%Y_%m_%d_%H_%M_%S')
     # 이미지 저장
-    img_save_path = str(save_dir / (path.stem + "_detected.jpg"))
+    img_save_path = str(save_dir / (path.stem + f"_detected_{time}.jpg"))
     cv2.imwrite(img_save_path, image)
 
     # 이미지 전송 함수 호출
@@ -311,7 +312,7 @@ def run(
                 # 드론 감지 이후 일정 간격으로 프레임 저장
                 if (now - last_capture_time).total_seconds() >= capture_interval:
                     # 바운딩 박스를 그리고 전송할 함수 호출
-                    draw_boxes_and_send(im0.copy(), sandDet, path_obj, save_dir, names)
+                    draw_boxes_and_send(im0.copy(), sandDet, path_obj, save_dir, names, now)
                     last_capture_time = now
             else:
                 if DRONE_DETECTED:
