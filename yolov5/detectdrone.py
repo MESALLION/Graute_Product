@@ -96,7 +96,6 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names):
     # names = 감지를 하는 이름
     
     # 박스를 그릴 감지 정보에서 좌표값과 신뢰값을 가져옴
-    print(boxes)
     for (x1, y1, x2, y2, conf, cls_id) in boxes:
         if names[int(cls_id)] == 'drone':
             # 드론에 대한 바운딩 박스를 그리고 신뢰값을 그림
