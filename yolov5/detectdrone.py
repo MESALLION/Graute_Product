@@ -46,10 +46,6 @@ pathlib.PosixPath = pathlib.WindowsPath
 import requests
 from datetime import datetime, timedelta
 
-# 추가한 코드(딜레이용)
-import time
-
-
 # 파일 경로 설정
 FILE = Path(__file__).resolve()
 # YOLOv5 루트 디렉토리 설정
@@ -87,18 +83,24 @@ from utils.general import (
 # utils.torch_utils 모듈에서 select_device, smart_inference_mode 가져오기
 from utils.torch_utils import select_device, smart_inference_mode
 
-# 추가한 코드
-# 전역 변수
+# 드론 관련 전역 변수(발견값, 시간값)
 DRONE_DETECTED = False
 LAST_DETECTED_TIME = None
 
-# 추가한 코드
 # 드론 감지 영역을 이미지에 그리고 저장 후 웹 서버로 전송합니다.
 def draw_boxes_and_send(image, boxes, path, save_dir, names):
+    # image = dataset의 이미지
+    # boxes = 박스를 그릴 감지 정보(tensor)
+    # path = dateset의 path
+    # save_dir = 이미지를 저장할 경로
+    # names = 감지를 하는 이름
+    
+    # 박스를 그릴 감지 정보에서 좌표값과 신뢰값을 가져옴
+    print(boxes)
     for (x1, y1, x2, y2, conf, cls_id) in boxes:
         if names[int(cls_id)] == 'drone':
-            # 드론에 대한 바운딩 박스를 그립니다.
-            color = (0, 0, 255)  # 빨간색
+            # 드론에 대한 바운딩 박스를 그리고 신뢰값을 그림
+            color = (0, 0, 255)
             thickness = 2
             label = f"{names[int(cls_id)]} {conf:.2f}"
             cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
@@ -108,18 +110,21 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names):
     img_save_path = str(save_dir / (path.stem + "_detected.jpg"))
     cv2.imwrite(img_save_path, image)
 
-    # 이미지 전송
+    # 이미지 전송 함수 호출
     send_detection(img_save_path, datetime.now())
-
     # 이미지 전송 상태 메시지 출력
     print(f"Image with detections saved and sent. Path: {img_save_path}")
 
 # 추가한 코드
 # 감지된 드론의 이미지와 시간을 웹 서버로 전송
 def send_detection(image_path, detection_time):
+    # 이미지
     files = {'image': open(image_path, 'rb')}
+    # 시간
     data = {'time': detection_time.strftime('%Y-%m-%d %H:%M:%S')}
+    # 보낼 곳의 좌표
     response = requests.post('http://127.0.0.1:8000/pybo/upload', files=files, data=data)
+    # 확인코드
     print('Detection sent. Status code:', response.status_code)
 
 # 추가한 코드
@@ -306,7 +311,8 @@ def run(
                 # 추가한 코드
                 # 드론 감지 이후 일정 간격으로 프레임 저장
                 if (now - last_capture_time).total_seconds() >= capture_interval:
-                    draw_boxes_and_send(im0.copy(), sandDet, path_obj, save_dir, names)  # 바운딩 박스를 그리고 전송합니다.
+                    # 바운딩 박스를 그리고 전송할 함수 호출
+                    draw_boxes_and_send(im0.copy(), sandDet, path_obj, save_dir, names)
                     last_capture_time = now
             else:
                 if DRONE_DETECTED:
@@ -368,12 +374,8 @@ def run(
             if save_img:
                 if dataset.mode == "image":
                     cv2.imwrite(save_path, im0)
-                    if os.path.exists(save_path):  # 파일 존재 확인
-                        print(f"File saved at {save_path}, 2-first sending detection...")
-                        #send_detection(save_path, LAST_DETECTED_TIME)  # 이미지 전송
-                    else:
-                        print(f"Failed to save file at {save_path}")
-                else:  # 'video' 또는 'stream'
+                # 'video' 또는 'stream'
+                else:
                     if vid_path[i] != save_path:  # 새로운 비디오
                         vid_path[i] = save_path
                         if isinstance(vid_writer[i], cv2.VideoWriter):
@@ -387,11 +389,6 @@ def run(
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
                     vid_writer[i].write(im0)
                     vid_writer[i].release()  # 비디오 파일 닫기
-                    if os.path.exists(save_path):  # 파일 존재 확인
-                        print(f"Video file saved at {save_path}, 2-second sending detection...")
-                        #send_detection(save_path, LAST_DETECTED_TIME)  # 비디오 전송
-                    else:
-                        print(f"Failed to save video at {save_path}")
 
         # 시간 출력 (추론만)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
