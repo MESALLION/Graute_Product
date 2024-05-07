@@ -107,7 +107,7 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names, now):
 
     time = now.strftime('%Y_%m_%d_%H_%M_%S')
     # 이미지 저장
-    img_save_path = str(save_dir / (path.stem + f"_detected_{time}.jpg"))
+    img_save_path = str(save_dir / ("현재" + " 위치" + f" detected_{time}.jpg"))
     cv2.imwrite(img_save_path, image)
 
     # 이미지 전송 함수 호출

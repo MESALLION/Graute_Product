@@ -8,10 +8,12 @@ from django.core.paginator import Paginator
 
 # 메인 페이지
 def main(request):
-    page = request.GET.get('page', '1')  # 페이지
+    # 페이지
+    page = request.GET.get('page', '1')
     # 모델의 디텍을 다 가져오는 변수
     detections = Detection.objects.order_by('-detection_time')
-    paginator = Paginator(detections, 10)  # 페이지당 10개씩 보여주기
+    # 페이지당 10개씩 보여주기
+    paginator = Paginator(detections, 10)
     page_obj = paginator.get_page(page)
     detections = {'detections': page_obj}
     return render(request, 'detection/main.html',  detections)
@@ -19,7 +21,7 @@ def main(request):
 # 저장된 모든 감지 정보를 보여주는 뷰
 def detection_list(request):
     # 모델의 디텍 오브젝트를 다 가져오는 변수
-    detections = Detection.objects.all()
+    detections = Detection.objects.order_by('-detection_time')
     # 위에서 가져온 변수를 html문서에 변수로 다시 전달해서 html에서 참조가 가능하게 리턴
     return render(request, 'detection/list.html', {'detections': detections})
 
