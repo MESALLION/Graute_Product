@@ -18,7 +18,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from pybo import views
+
+# url 부분
 urlpatterns = [
+    # 기본을 pybo의 메인페이지로 보내기
+    path('', views.main, name='main'),
+    # admin(관리자) 페이지
     path('admin/', admin.site.urls),
+    # pybo페이지
     path('pybo/', include('pybo.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
