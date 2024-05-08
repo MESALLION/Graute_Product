@@ -86,9 +86,14 @@ from utils.torch_utils import select_device, smart_inference_mode
 # 드론 관련 전역 변수(발견값, 시간값)
 DRONE_DETECTED = False
 LAST_DETECTED_TIME = None
+DETECTED_TIME_SUM = 0
+DETECTION_COUNT = 0
+
 
 # 드론 감지 영역을 이미지에 그리고 저장 후 웹 서버로 전송합니다.
 def draw_boxes_and_send(image, boxes, path, save_dir, names, now):
+    global DETECTION_COUNT
+    DETECTION_COUNT = DETECTION_COUNT + 1
     # image = dataset의 이미지
     # boxes = 박스를 그릴 감지 정보(tensor)
     # path = dateset의 path
@@ -105,13 +110,13 @@ def draw_boxes_and_send(image, boxes, path, save_dir, names, now):
             cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
             cv2.putText(image, label, (int(x1), int(y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
-    time = now.strftime('%Y_%m_%d_%H_%M_%S')
+    detect_time = now.strftime('%Y_%m_%d_%H_%M_%S')
     # 이미지 저장
-    img_save_path = str(save_dir / ("현재" + " 위치" + f" detected_{time}.jpg"))
+    img_save_path = str(save_dir / ("현재" + " 위치" + f" detected_{detect_time}_{DETECTION_COUNT}.jpg"))
     cv2.imwrite(img_save_path, image)
 
     # 이미지 전송 함수 호출
-    send_detection(img_save_path, datetime.now())
+    send_detection(img_save_path, now)
     # 이미지 전송 상태 메시지 출력
     print(f"이미지 저장 및 전송완료. Path: {img_save_path}")
 
@@ -130,13 +135,18 @@ def send_detection(image_path, detection_time):
 # 추가한 코드
 # 드론이 사라진 후 경과 시간 계산 및 전송
 def calculate_and_send_elapsed_time():
-    global LAST_DETECTED_TIME, DRONE_DETECTED
+    global LAST_DETECTED_TIME, DRONE_DETECTED, DETECTED_TIME_SUM
     if DRONE_DETECTED:
-        elapsed_time = datetime.now() - LAST_DETECTED_TIME
+        now = datetime.now()
+        elapsed_time = now - LAST_DETECTED_TIME
+        DETECTED_TIME_SUM = DETECTED_TIME_SUM + elapsed_time.total_seconds()
+        print(f"Elapsed time: {DETECTED_TIME_SUM} seconds")
         data = {'elapsed_time': elapsed_time.total_seconds()}
         response = requests.post('http://127.0.0.1:8000/pybo/upload_time', data=data)
         print('Elapsed time sent. Status code:', response.status_code)
+        # 감지 정보 리셋
         DRONE_DETECTED = False
+        LAST_DETECTED_TIME = None
 
 
 # 추론을 실행하는 함수
