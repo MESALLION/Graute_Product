@@ -14,5 +14,7 @@ urlpatterns = [
     # 드론이 머문시간
     path('upload_time', views.upload_time, name='upload_time'),
     # 감지된 드론 하나만 보는 URL
-    path('<int:detection_id>/', views.detection_detail, name="detection_detail")
+    path('<int:detection_id>/', views.detection_detail, name="detection_detail"),
+    # 달력처럼 보이는 URL
+    path('calender', views.detection_calender, name="detection_calender")
 ]

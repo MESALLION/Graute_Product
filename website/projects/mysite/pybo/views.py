@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Detection
-from datetime import datetime
+import datetime
+import calendar
 from django.core.paginator import Paginator  
 
 
@@ -20,16 +21,57 @@ def main(request):
 
 # 저장된 모든 감지 정보를 보여주는 뷰
 def detection_list(request):
+    # 페이지
+    page = request.GET.get('page', '1')
     # 모델의 디텍 오브젝트를 다 가져오는 변수
     detections = Detection.objects.order_by('-detection_time', '-id')
+    paginator = Paginator(detections, 9)
+    page_obj = paginator.get_page(page)
     # 위에서 가져온 변수를 html문서에 변수로 다시 전달해서 html에서 참조가 가능하게 리턴
-    return render(request, 'detection/detection_all.html', {'detections': detections})
+    return render(request, 'detection/detection_all.html',  {'page_obj': page_obj})
 
 # 저장된 감지 정보 중 하나만 보여주는 뷰
 def detection_detail(request, detection_id):
     detection = get_object_or_404(Detection, pk=detection_id)
     detection_one = {'detection': detection}
     return render(request, 'detection/detection_detail.html', detection_one)
+
+# 달력처럼 보여주는 뷰
+def detection_calender(request):
+    today = datetime.date.today()
+    year = today.year
+    month = today.month
+
+    cal = calendar.Calendar(firstweekday=6)  # 일요일부터 시작
+    month_days = list(cal.itermonthdays4(year, month))  # 해당 월의 모든 날짜 가져오기
+
+    # 각 날짜에 해당하는 감지 이벤트 수 집계
+    detections_per_day = {}
+    for day in month_days:
+        if day[1] == month:  # 해당 월의 날짜인 경우만 처리
+            date = datetime.date(day[0], day[1], day[2])
+            detections_count = Detection.objects.filter(detection_time__date=date).count()
+            detections_per_day[date] = detections_count
+
+    # 주차별로 분리
+    weeks = []
+    week = []
+    for day in month_days:
+        date = datetime.date(day[0], day[1], day[2])
+        if day[1] == month or day[2] != 0:  # 해당 월이거나, 빈 날짜가 아닐 경우
+            week.append((date, detections_per_day.get(date, 0)))
+        if len(week) == 7:
+            weeks.append(week)
+            week = []
+    if week:  # 마지막 주 처리
+        weeks.append(week)
+
+    context = {
+        'year': year,
+        'month': month,
+        'weeks': weeks
+    }
+    return render(request, 'detection/detection_calender.html', context)
 
 # 드론 감지 이미지와 시간을 받아 저장하는 뷰
 @csrf_exempt  # CSRF 검증 비활성화
