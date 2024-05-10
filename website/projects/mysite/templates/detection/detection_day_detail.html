@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
+{% load date_filters %}
 {% block content %}
 <div class="container my-3">
     <h1>{{ date }} 감지된 정보</h1>
@@ -20,7 +21,7 @@
                 <td>
                     <a href="{% url 'pybo:detection_detail' detection.id %}">{{ detection.image|format_image_name }}</a>
                 </td>
-                <td>{{ detection.detection_time }}</td>
+                <td>{{ detection.detection_time|date_filter }}</td>
                 <td>{{ detection.elapsed_time}}</td>
             </tr>
             {% endfor %}
