@@ -42,7 +42,7 @@ def detection_calender(request):
     year = today.year
     month = today.month
 
-    cal = calendar.Calendar(firstweekday=6)  # 일요일부터 시작
+    cal = calendar.Calendar(firstweekday=7)  # 일요일부터 시작
     month_days = list(cal.itermonthdays4(year, month))  # 해당 월의 모든 날짜 가져오기
 
     # 각 날짜에 해당하는 감지 이벤트 수 집계
