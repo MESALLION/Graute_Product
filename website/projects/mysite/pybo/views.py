@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Detection
 from datetime import datetime
-import datetime
+import datetime as dat
 import calendar
 from django.core.paginator import Paginator  
 
@@ -39,7 +39,7 @@ def detection_detail(request, detection_id):
 
 # 달력처럼 보여주는 뷰
 def detection_calender(request):
-    today = datetime.date.today()
+    today = dat.date.today()
     year = today.year
     month = today.month
 
@@ -50,7 +50,7 @@ def detection_calender(request):
     detections_per_day = {}
     for day in month_days:
         if day[1] == month:  # 해당 월의 날짜인 경우만 처리
-            date = datetime.date(day[0], day[1], day[2])
+            date = dat.date(day[0], day[1], day[2])
             detections_count = Detection.objects.filter(detection_time__date=date).count()
             detections_per_day[date] = detections_count
 
@@ -58,7 +58,7 @@ def detection_calender(request):
     weeks = []
     week = []
     for day in month_days:
-        date = datetime.date(day[0], day[1], day[2])
+        date = dat.date(day[0], day[1], day[2])
         if day[1] == month or day[2] != 0:  # 해당 월이거나, 빈 날짜가 아닐 경우
             week.append((date, detections_per_day.get(date, 0)))
         if len(week) == 7:
@@ -76,7 +76,7 @@ def detection_calender(request):
 
 # 달력에서 누르면 보이는 뷰
 def detection_day_detail(request, year, month, day):
-    date = datetime.date(year, month, day)
+    date = dat.date(year, month, day)
     detections = Detection.objects.filter(detection_time__date=date).order_by('-detection_time', '-id')
     page = request.GET.get('page', '1')
     paginator = Paginator(detections, 10)
