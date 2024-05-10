@@ -16,5 +16,7 @@ urlpatterns = [
     # 감지된 드론 하나만 보는 URL
     path('<int:detection_id>/', views.detection_detail, name="detection_detail"),
     # 달력처럼 보이는 URL
-    path('calender', views.detection_calender, name="detection_calender")
+    path('calender', views.detection_calender, name="detection_calender"),
+    # 달력에서 누르면 보이는 URL
+    path('detections/<int:year>/<int:month>/<int:day>/', views.detection_day_detail, name='detection_day_detail'),
 ]

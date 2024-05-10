@@ -73,6 +73,21 @@ def detection_calender(request):
     }
     return render(request, 'detection/detection_calender.html', context)
 
+# 달력에서 누르면 보이는 뷰
+def detection_day_detail(request, year, month, day):
+    date = datetime.date(year, month, day)
+    detections = Detection.objects.filter(detection_time__date=date).order_by('-detection_time', '-id')
+    page = request.GET.get('page', '1')
+    paginator = Paginator(detections, 10)
+    page_obj = paginator.get_page(page)
+    
+    context = {
+        'detections': page_obj,
+        'date': date,
+    }
+    
+    return render(request, 'detection/detection_day_detail.html', context)
+
 # 드론 감지 이미지와 시간을 받아 저장하는 뷰
 @csrf_exempt  # CSRF 검증 비활성화
 def upload(request):

@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <h1>{{ year }}년 {{ month }}월 드론 감지 달력</h1>
-    <table class="table table-bordered">
+    <h1 class="text-center mb-4">{{ year }}년 {{ month }}월 드론 감지 달력</h1>
+    <table class="table table-bordered text-center" style="width: 110%; min-height: 300px;">
         <thead>
             <tr>
                 <th>월</th>
@@ -10,8 +10,8 @@
                 <th>수</th>
                 <th>목</th>
                 <th>금</th>
-                <th>토</th>
-                <th>일</th>
+                <th style="color : blue">토</th>
+                <th style="color: red;">일</th>
             </tr>
         </thead>
         <tbody>
@@ -19,7 +19,7 @@
             <tr>
                 {% for day, count in week %}
                 <td {% if day.month != month %}class="text-muted"{% endif %}>
-                    {{ day.day }}일 ({{ count }}개)
+                    <a href="{% url 'pybo:detection_day_detail' day.year day.month day.day %}">{{ day.day }}일 ({{ count }}개)</a>
                 </td>
                 {% endfor %}
             </tr>
