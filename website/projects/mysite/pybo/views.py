@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Detection
 from datetime import datetime
+# import 꼬이는 문제 해결
 import datetime as dat
 import calendar
 from django.core.paginator import Paginator  
@@ -40,10 +41,10 @@ def detection_detail(request, detection_id):
 # 달력처럼 보여주는 뷰
 def detection_calender(request):
     today = dat.date.today()
-    year = today.year
-    month = today.month
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
 
-    cal = calendar.Calendar(firstweekday=7)  # 일요일부터 시작
+    cal = calendar.Calendar(firstweekday=7)
     month_days = list(cal.itermonthdays4(year, month))  # 해당 월의 모든 날짜 가져오기
 
     # 각 날짜에 해당하는 감지 이벤트 수 집계
