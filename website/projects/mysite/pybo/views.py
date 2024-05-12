@@ -39,7 +39,7 @@ def detection_detail(request, detection_id):
     return render(request, 'detection/detection_detail.html', detection_one)
 
 # 달력처럼 보여주는 뷰
-def detection_calender(request):
+def detection_calendar(request):
     today = dat.date.today()
     year = int(request.GET.get('year', today.year))
     month = int(request.GET.get('month', today.month))
@@ -73,7 +73,7 @@ def detection_calender(request):
         'month': month,
         'weeks': weeks
     }
-    return render(request, 'detection/detection_calender.html', context)
+    return render(request, 'detection/detection_calendar.html', context)
 
 # 달력에서 누르면 보이는 뷰
 def detection_day_detail(request, year, month, day):

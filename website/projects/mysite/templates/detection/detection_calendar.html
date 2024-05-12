@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load calender_filters %}
+{% load calendar_filters %}
 
 {% block content %}
 <div class="calendar-container">
     <div class="header" style="text-align: center;">
-        <select id="month-select" onchange="changeMonth()">
-            {% for m in 12|make_range %}
-            <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}월</option>
-            {% endfor %}
-        </select>
-        <select id="year-select" onchange="changeMonth()">
+        <select id="year-select" onchange="changeMonth()" size="1" onclick="toggleYearSelect()">
             {% for y in 10|make_range %}
             <option value="{{ year|add:forloop.counter0|add:-5 }}" {% if year|add:forloop.counter0|add:-5 == year %}selected{% endif %}>
                 {{ year|add:forloop.counter0|add:-5 }}년
             </option>
             {% endfor %}
         </select>
-    </div>   
+        <select id="month-select" onchange="changeMonth()">
+            {% for m in 12|make_range %}
+            <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}월</option>
+            {% endfor %}
+        </select>
+    </div>          
     <table class="table table-bordered text-center calendar-table" style="text-align: center;">
         <thead>
             <tr>
@@ -46,5 +46,5 @@
     </table>
 </div>
 <!-- 달력용 자바스크립트 -->
-<script src="{% static 'calender.js' %}"></script>
+<script src="{% static 'calendar.js' %}"></script>
 {% endblock %}
