@@ -1,0 +1,12 @@
+names:
+- drone
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: drone-80mc8
+  url: https://universe.roboflow.com/drone-za1rm/drone-80mc8/dataset/9
+  version: 9
+  workspace: drone-za1rm
+test: C:/Users/User/Documents/workspace/Graute_Product/training/dataset/drone.v9i.yolov5pytorch/test/images
+train: ../train/images
+val: C:/Users/User/Documents/workspace/Graute_Product/training/dataset/drone.v9i.yolov5pytorch/valid/images
