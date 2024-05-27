@@ -1,0 +1,12 @@
+names:
+- drone
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: drone-uskpc
+  url: https://universe.roboflow.com/project-986i8/drone-uskpc/dataset/1
+  version: 1
+  workspace: project-986i8
+test: C:/Users/User/Documents/workspace/Graute_Product/training/dataset/Drone.v1i.yolov5pytorch/test/images
+train: C:/Users/User/Documents/workspace/Graute_Product/training/dataset/Drone.v1i.yolov5pytorch/train/images
+val: C:/Users/User/Documents/workspace/Graute_Product/training/dataset/Drone.v1i.yolov5pytorch/valid/images

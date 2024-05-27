@@ -56,7 +56,6 @@ if str(ROOT) not in sys.path:
 # 상대 경로로 ROOT 설정
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
-# 욜로 코드를 import
 # 욜로 코드의 세부 모듈들을 import
 # ultralytics.utils.plotting 모듈에서 Annotator, colors, save_one_box 가져오기
 from ultralytics.utils.plotting import Annotator, colors, save_one_box
@@ -83,22 +82,22 @@ from utils.general import (
 # utils.torch_utils 모듈에서 select_device, smart_inference_mode 가져오기
 from utils.torch_utils import select_device, smart_inference_mode
 
-# 드론 관련 전역 변수(발견값, 시간값)
+# 드론 관련 전역 변수(발견값, 발견된 드론 개수, 시간값, 총 시간값)
 DRONE_DETECTED = False
+DETECTION_COUNT = 0
 LAST_DETECTED_TIME = None
 DETECTED_TIME_SUM = 0
-DETECTION_COUNT = 0
 
 
 # 드론 감지 영역을 이미지에 그리고 저장 후 웹 서버로 전송합니다.
-def draw_boxes_and_send(image, boxes, path, save_dir, names, now):
+def draw_boxes_and_send(image, boxes, save_dir, names, now):
     global DETECTION_COUNT
     DETECTION_COUNT = DETECTION_COUNT + 1
     # image = dataset의 이미지
     # boxes = 박스를 그릴 감지 정보(tensor)
-    # path = dateset의 path
     # save_dir = 이미지를 저장할 경로
     # names = 감지를 하는 이름
+    # now = 시간값
     
     # 박스를 그릴 감지 정보에서 좌표값과 신뢰값을 가져옴
     for (x1, y1, x2, y2, conf, cls_id) in boxes:
@@ -233,7 +232,7 @@ def run(
     # 데이터셋에서 이미지를 가져와서 추론을 실행합니다.
     
     # 추가한 변수
-    capture_interval = 5  # 드론 감지 후 프레임 캡처 간격 (초)
+    capture_interval = 2  # 드론 감지 후 프레임 캡처 간격 (초)
     last_capture_time = None  # 마지막 캡처 시간 초기화
     
     for path, im, im0s, vid_cap, s in dataset:
@@ -322,7 +321,7 @@ def run(
                 # 드론 감지 이후 일정 간격으로 프레임 저장
                 if (now - last_capture_time).total_seconds() >= capture_interval:
                     # 바운딩 박스를 그리고 전송할 함수 호출
-                    draw_boxes_and_send(im0.copy(), sandDet, path_obj, save_dir, names, now)
+                    draw_boxes_and_send(im0.copy(), sandDet, save_dir, names, now)
                     last_capture_time = now
             else:
                 if DRONE_DETECTED:
