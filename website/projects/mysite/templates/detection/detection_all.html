@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load date_filters %}
-{% load date_filters}
 {% block content %}
 <div class="container">
     <h1 class="text-center mb-4">Detection All Image</h1>
@@ -13,7 +12,7 @@
                             <img src="{{ detection.image.url }}" class="card-img-top" alt="Detected Image">
                         </a>
                         <div class="card-body">
-                            <p class="card-text">{{ detection.detection_time|date_filter }} - {{ detection.elapsed_time }}</p>
+                            <p class="card-text">{{ detection.detection_time|date_filter }} - {{ detection.elapsed_time|elapsed_filter }}</p>
                         </div>
                     </div>
                 </div>

@@ -10,8 +10,8 @@
                 {{ detection.detection_time|date_filter }}
             </div>
             <div class="card-text" style="white-space: pre-line;">
-                머문시간(이미지나 머문시간이  None으로 처리)
-                {{ detection.elapsed_time }}
+                머문시간
+                {{ detection.elapsed_time|elapsed_filter }}
             </div>
         </div>
     </div>

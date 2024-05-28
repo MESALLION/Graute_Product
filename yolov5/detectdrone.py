@@ -111,7 +111,7 @@ def draw_boxes_and_send(image, boxes, save_dir, names, now):
 
     detect_time = now.strftime('%Y_%m_%d_%H_%M_%S')
     # 이미지 저장
-    img_save_path = str(save_dir / ("현재" + " 위치" + f" detected_{detect_time}_{DETECTION_COUNT}.jpg"))
+    img_save_path = str(save_dir / ("현재" + " 위치" + f" {DETECTION_COUNT}.jpg"))
     cv2.imwrite(img_save_path, image)
 
     # 이미지 전송 함수 호출
@@ -232,7 +232,7 @@ def run(
     # 데이터셋에서 이미지를 가져와서 추론을 실행합니다.
     
     # 추가한 변수
-    capture_interval = 2  # 드론 감지 후 프레임 캡처 간격 (초)
+    capture_interval = 1  # 드론 감지 후 프레임 캡처 간격 (초)
     last_capture_time = None  # 마지막 캡처 시간 초기화
     
     for path, im, im0s, vid_cap, s in dataset:
@@ -326,7 +326,7 @@ def run(
             else:
                 if DRONE_DETECTED:
                     calculate_and_send_elapsed_time()  # 경과 시간 전송
-                    RONE_DETECTED = False  # 감지 상태 초기화
+                    DRONE_DETECTED = False  # 감지 상태 초기화
             # 드론 감지 및 전송 로직 추가 - 끝
 
             p = Path(p)  # Path로 변환

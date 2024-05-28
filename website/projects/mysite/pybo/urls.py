@@ -7,6 +7,8 @@ app_name = 'pybo'
 urlpatterns = [
     # 기본 pybo로 되어있고 뒤에 어떤게 붙냐에따라 url지정
     path('', views.main, name='main'),
+    # 게시판 형태로 보여주기
+    path('notice', views.detection_notice, name='detection_notice'),
     # 드론 감지 정보를 담는 URL
     path('detect', views.detection_list, name='detection_list'),
     # 드론 이미지, 최초의 발견 시간

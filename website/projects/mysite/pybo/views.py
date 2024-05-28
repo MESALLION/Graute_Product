@@ -11,15 +11,21 @@ from django.core.paginator import Paginator
 
 # 메인 페이지
 def main(request):
+    return render(request, 'detection/main.html')
+
+
+# 게시판 뷰
+def detection_notice(request):
     # 페이지
     page = request.GET.get('page', '1')
     # 모델의 디텍을 다 가져오는 변수
     detections = Detection.objects.order_by('-detection_time', '-id')
     # 페이지당 10개씩 보여주기
-    paginator = Paginator(detections, 10)
+    paginator = Paginator(detections, 4)
     page_obj = paginator.get_page(page)
     detections = {'detections': page_obj}
-    return render(request, 'detection/main.html',  detections)
+    return render(request, 'detection/detection_notice.html',  detections)
+
 
 # 저장된 모든 감지 정보를 보여주는 뷰
 def detection_list(request):
@@ -32,11 +38,13 @@ def detection_list(request):
     # 위에서 가져온 변수를 html문서에 변수로 다시 전달해서 html에서 참조가 가능하게 리턴
     return render(request, 'detection/detection_all.html',  {'page_obj': page_obj})
 
+
 # 저장된 감지 정보 중 하나만 보여주는 뷰
 def detection_detail(request, detection_id):
     detection = get_object_or_404(Detection, pk=detection_id)
     detection_one = {'detection': detection}
     return render(request, 'detection/detection_detail.html', detection_one)
+
 
 # 달력처럼 보여주는 뷰
 def detection_calendar(request):
@@ -75,12 +83,13 @@ def detection_calendar(request):
     }
     return render(request, 'detection/detection_calendar.html', context)
 
+
 # 달력에서 누르면 보이는 뷰
 def detection_day_detail(request, year, month, day):
     date = dat.date(year, month, day)
     detections = Detection.objects.filter(detection_time__date=date).order_by('-detection_time', '-id')
     page = request.GET.get('page', '1')
-    paginator = Paginator(detections, 10)
+    paginator = Paginator(detections, 4)
     page_obj = paginator.get_page(page)
     
     context = {
@@ -89,6 +98,7 @@ def detection_day_detail(request, year, month, day):
     }
     
     return render(request, 'detection/detection_day_detail.html', context)
+
 
 # 드론 감지 이미지와 시간을 받아 저장하는 뷰
 @csrf_exempt  # CSRF 검증 비활성화
@@ -107,6 +117,7 @@ def upload(request):
         return JsonResponse({'status': 'success', 'message': 'Detection data saved.'})
     # 리턴
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
 
 # 드론이 사라진 후 경과 시간을 받아 마지막 감지 레코드를 업데이트하는 뷰
 @csrf_exempt

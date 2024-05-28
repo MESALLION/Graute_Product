@@ -3,7 +3,6 @@
 {% load date_filters %}
 {% block content %}
 <div class="container my-3">
-    <h1 style="text-align: center;">{{ date }} 감지된 정보</h1>
     <table class="table">
         <thead>
         <tr class="table-dark">
@@ -29,7 +28,7 @@
             {% endfor %}
         {% else %}
         <tr>
-            <td colspan="3">이 날짜에 감지된 정보가 없습니다.</td>
+            <td colspan="3">감지된 드론이 없습니다.</td>
         </tr>
         {% endif %}
         </tbody>
