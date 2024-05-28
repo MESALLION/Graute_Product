@@ -58,53 +58,55 @@
 <script src="{% static 'calendar.js' %}"></script>
 
 <!-- 꺾은선 그래프 자바스크립트 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var ctx = document.getElementById('line-chart').getContext('2d');
-
-        // 데이터를 템플릿에서 가져옴
-        var days = [];
-        var counts = [];
-
-        {% for week in weeks %}
-            {% for day, count in week %}
-                {% if day.month == month %}
-                    days.push('{{ day.day }}');
-                    counts.push({{ count }});
-                {% endif %}
+<div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('line-chart').getContext('2d');
+    
+            // 데이터를 템플릿에서 가져옴
+            var days = [];
+            var counts = [];
+    
+            {% for week in weeks %}
+                {% for day, count in week %}
+                    {% if day.month == month %}
+                        days.push('{{ day.day }}');
+                        counts.push({{ count }});
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-
-        var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: days,
-                datasets: [{
-                    label: '드론 탐지 개수',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    data: counts,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: '일자'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: '드론 감지'
+    
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: '드론 탐지 개수',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        data: counts,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '일자'
+                            }
                         },
-                        beginAtZero: true
+                        y: {
+                            title: {
+                                display: true,
+                                text: '드론 감지'
+                            },
+                            beginAtZero: true
+                        }
                     }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
+</div>
 {% endblock %}

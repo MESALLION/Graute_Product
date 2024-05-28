@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-테스트
+<div>
+    <h1 class="text-center">테스트 앞 화면</h1>
+</div>
+<div text-align="center;">
+    <img src="{% static 'mainpageimage/mainpageimage.jpg' %}" class="rounded mx-auto d-block" alt="Detected Image" >
+<div>
 {% endblock %}
