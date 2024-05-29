@@ -1,10 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div>
-    <h1 class="text-center">테스트 앞 화면</h1>
+<div class="container text-center mt-5">
+    <div class="row">
+        <div class="col">
+            <h1 class="mt-3">딥러닝을 통한 드론식별</h1>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col">
+            <img src="{% static 'mainpageimage/mainpageimage.jpg' %}" class="rounded mx-auto d-block" alt="Detected Image" style="width: 100%; max-width: 600px;">
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-secondary btn-lg me-3">
+                <a href="{% url 'pybo:detection_list' %}" class="text-decoration-none text-dark">사진으로 전체 보기</a>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg me-3">
+                <a href="{% url 'pybo:detection_notice' %}" class="text-decoration-none text-dark">게시판으로 보기</a>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg">
+                <a href="{% url 'pybo:detection_calendar' %}" class="text-decoration-none text-dark">달력으로 보기</a>
+            </button>
+        </div>
+    </div>
 </div>
-<div text-align="center;">
-    <img src="{% static 'mainpageimage/mainpageimage.jpg' %}" class="rounded mx-auto d-block" alt="Detected Image" >
-<div>
 {% endblock %}
