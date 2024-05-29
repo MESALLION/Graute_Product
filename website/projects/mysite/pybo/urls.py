@@ -23,4 +23,6 @@ urlpatterns = [
     path('calendar/<int:year>/<int:month>', views.detection_calendar, name="detection_calendar"),
     # 달력에서 누르면 보이는 URL
     path('detections/<int:year>/<int:month>/<int:day>/', views.detection_day_detail, name='detection_day_detail'),
+    # 엑셀 다운로드 URL
+    path('export/', views.export_to_excel, name='export_to_excel')
 ]

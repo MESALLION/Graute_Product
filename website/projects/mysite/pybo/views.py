@@ -1,12 +1,14 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Detection
 from datetime import datetime
 # import 꼬이는 문제 해결
 import datetime as dat
 import calendar
-from django.core.paginator import Paginator  
+from django.core.paginator import Paginator
+import pandas as pd
+import io
 
 
 # 메인 페이지
@@ -136,3 +138,33 @@ def upload_time(request):
         return JsonResponse({'status': 'success', 'message': 'Elapsed time updated.'})
     # 리턴
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+# 엑셀로 다운로드 받기위한 함수
+def export_to_excel(request):
+    # 모든 Detection 객체를 가져옵니다.
+    detections = Detection.objects.all()
+
+    # 데이터를 데이터프레임으로 변환합니다.
+    data = []
+    for detection in detections:
+        image_name = detection.image.name.split('/')[-1].split('_')[0] + " " + detection.image.name.split('/')[-1].split('_')[1]
+        elapsed_time = detection.elapsed_time if detection.elapsed_time is not None else "측정불가"
+        data.append({
+            '번호': detection.id,
+            '위치': image_name,
+            '감지된 시간': detection.detection_time.replace(tzinfo=None),
+            '머문 시간': elapsed_time
+        })
+
+    df = pd.DataFrame(data)
+
+    # 데이터를 엑셀 파일로 변환합니다.
+    with io.BytesIO() as buffer:
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Detections')
+
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=detections.xlsx'
+        return response
