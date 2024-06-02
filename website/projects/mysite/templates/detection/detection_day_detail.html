@@ -5,7 +5,7 @@
 <div class="container my-3">
     <h1 style="text-align: center;">
         {{ date }} 감지된 정보 
-        <a href="{% url 'pybo:export_to_excel' %}" class="btn btn-outline-secondary btn-lg me-3">
+        <a href="{% url 'pybo:export_to_excel' date %}" class="btn btn-outline-secondary btn-lg me-3">
             엑셀로 다운로드
         </a>
     </h1>

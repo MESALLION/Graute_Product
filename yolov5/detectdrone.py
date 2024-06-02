@@ -109,7 +109,6 @@ def draw_boxes_and_send(image, boxes, save_dir, names, now):
             cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
             cv2.putText(image, label, (int(x1), int(y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
-    detect_time = now.strftime('%Y_%m_%d_%H_%M_%S')
     # 이미지 저장
     img_save_path = str(save_dir / ("현재" + " 위치" + f" {DETECTION_COUNT}.jpg"))
     cv2.imwrite(img_save_path, image)
@@ -395,9 +394,9 @@ def run(
                             h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                         else:  # 스트림
                             fps, w, h = 30, im0.shape[1], im0.shape[0]
+                        save_path = str(Path(save_path).with_suffix(".mp4"))  # 결과 비디오에 *.mp4 확장자 강제 적용
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
                     vid_writer[i].write(im0)
-                    vid_writer[i].release()  # 비디오 파일 닫기
 
         # 시간 출력 (추론만)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")

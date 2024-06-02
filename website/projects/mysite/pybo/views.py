@@ -35,7 +35,7 @@ def detection_list(request):
     page = request.GET.get('page', '1')
     # 모델의 디텍 오브젝트를 다 가져오는 변수
     detections = Detection.objects.order_by('-detection_time', '-id')
-    paginator = Paginator(detections, 9)
+    paginator = Paginator(detections, 6)
     page_obj = paginator.get_page(page)
     # 위에서 가져온 변수를 html문서에 변수로 다시 전달해서 html에서 참조가 가능하게 리턴
     return render(request, 'detection/detection_all.html',  {'page_obj': page_obj})
@@ -128,7 +128,7 @@ def upload_time(request):
     if request.method == 'POST':
         # 머문 시간
         elapsed_time = request.POST.get('elapsed_time')
-        # 머문 시간까지 추가
+        # 머문 시간추가할 곳 잡기
         last_detection = Detection.objects.latest('id')
         # 머문 시간까지 추가
         last_detection.elapsed_time = float(elapsed_time)
@@ -140,31 +140,40 @@ def upload_time(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
-# 엑셀로 다운로드 받기위한 함수
-def export_to_excel(request):
-    # 모든 Detection 객체를 가져옵니다.
-    detections = Detection.objects.all()
 
-    # 데이터를 데이터프레임으로 변환합니다.
+def export_to_excel(request, date):
+    # 문자열로 전달된 날짜를 datetime 객체로 변환
+    try:
+        current_date = datetime.strptime(date, '%Y-%m-%d').strftime('%Y-%m-%d')
+    except ValueError:
+        return HttpResponse("Invalid date format. Please use 'YYYY-MM-DD' format.")
+
+    # 해당 날짜에 해당하는 Detection 객체를 가져옵니다.
+    detections = Detection.objects.filter(detection_time__date=current_date)
+
+    # 데이터 프레임 변환을 위한 리스트 초기화
     data = []
     for detection in detections:
+        # 이미지 이름 포맷팅
         image_name = detection.image.name.split('/')[-1].split('_')[0] + " " + detection.image.name.split('/')[-1].split('_')[1]
+        # 머문 시간이 없는 경우 '측정불가'로 대체
         elapsed_time = detection.elapsed_time if detection.elapsed_time is not None else "측정불가"
         data.append({
             '번호': detection.id,
             '위치': image_name,
-            '감지된 시간': detection.detection_time.replace(tzinfo=None),
+            '감지된 시간': current_date,
             '머문 시간': elapsed_time
         })
 
+    # 데이터프레임 생성
     df = pd.DataFrame(data)
 
-    # 데이터를 엑셀 파일로 변환합니다.
+    # 데이터를 엑셀 파일로 변환
     with io.BytesIO() as buffer:
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Detections')
 
         buffer.seek(0)
         response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=detections.xlsx'
+        response['Content-Disposition'] = f'attachment; filename=detections_{current_date}.xlsx'
         return response

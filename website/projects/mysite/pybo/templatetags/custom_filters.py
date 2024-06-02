@@ -7,7 +7,7 @@ register = template.Library()
 def format_image_name(value):
     file_name = value.name.split('/')[-1]  # '현재_위치_1.jpg'
     # 정규 표현식으로 날짜와 시간 부분을 추출 및 포맷팅
-    match = re.match(r"(.+)_(\d+)", file_name)
+    match = re.match(r"(.+?)_(\d+)_.*", file_name)
     if match:
         # 그룹 추출
         location = match.group(1).replace('_', ' ')
