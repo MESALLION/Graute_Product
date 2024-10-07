@@ -3,22 +3,25 @@
 {% load calendar_filters %}
 
 {% block content %}
-<div class="calendar-container">
-    <div class="header" style="text-align: center;">
-        <select id="year-select" onchange="changeMonth()" size="1" onclick="toggleYearSelect()">
+<div class="calendar-container" style="margin-top: 30px; max-width: 900px; margin-left: auto; margin-right: auto;">
+    <!-- 달력 헤더 -->
+    <div class="header mb-4" style="text-align: center;">
+        <select id="year-select" onchange="changeMonth()" size="1" style="font-size: 1.1rem; padding: 8px; border-radius: 8px; border: 1px solid #ccc; margin-right: 10px;">
             {% for y in 10|make_range %}
             <option value="{{ year|add:forloop.counter0|add:-5 }}" {% if year|add:forloop.counter0|add:-5 == year %}selected{% endif %}>
                 {{ year|add:forloop.counter0|add:-5 }}년
             </option>
             {% endfor %}
         </select>
-        <select id="month-select" onchange="changeMonth()">
+        <select id="month-select" onchange="changeMonth()" style="font-size: 1.1rem; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
             {% for m in 12|make_range %}
             <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}월</option>
             {% endfor %}
         </select>
-    </div>          
-    <table class="table table-bordered text-center calendar-table" style="text-align: center;">
+    </div>
+
+    <!-- 달력 테이블 -->
+    <table class="table table-bordered text-center calendar-table" style="text-align: center; font-size: 1.1rem;">
         <thead>
             <tr>
                 <th>MON</th>
@@ -26,17 +29,17 @@
                 <th>WED</th>
                 <th>THU</th>
                 <th>FRI</th>
-                <th style="color: blue;">SAT</th>
-                <th style="color: red;">SUN</th>
+                <th style="color: #2980b9;">SAT</th>
+                <th style="color: #e74c3c;">SUN</th>
             </tr>
         </thead>
         <tbody>
             {% for week in weeks %}
             <tr>
                 {% for day, count in week %}
-                <td {% if day.month != month %}class="text-muted"{% endif %}>
-                    <a href="{% url 'pybo:detection_day_detail' day.year day.month day.day %}">
-                        {{ day.month }}/{{ day.day }} ({{ count }}개)
+                <td {% if day.month != month %}class="text-muted"{% endif %} style="padding: 12px;">
+                    <a href="{% url 'pybo:detection_day_detail' day.year day.month day.day %}" style="text-decoration: none; color: #34495e;">
+                        {{ day.month }}/{{ day.day }} <small>({{ count }}개)</small>
                     </a>
                 </td>
                 {% endfor %}
@@ -47,7 +50,7 @@
 </div>
 
 <!-- 꺾은선 그래프를 위한 캔버스 -->
-<div class="chart-container" style="width: 75%; margin: auto;">
+<div class="chart-container mt-5" style="width: 60%; margin: auto;">
     <canvas id="line-chart"></canvas>
 </div>
 
@@ -57,16 +60,16 @@
 <!-- 달력용 자바스크립트 -->
 <script src="{% static 'calendar.js' %}"></script>
 
-<!-- 꺾은선 그래프 자바스크립트 -->
+<!-- 꺾은선그래프 자바스크립트 -->
 <div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var ctx = document.getElementById('line-chart').getContext('2d');
-    
+
             // 데이터를 템플릿에서 가져옴
             var days = [];
             var counts = [];
-    
+
             {% for week in weeks %}
                 {% for day, count in week %}
                     {% if day.month == month %}
@@ -75,7 +78,7 @@
                     {% endif %}
                 {% endfor %}
             {% endfor %}
-    
+
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
