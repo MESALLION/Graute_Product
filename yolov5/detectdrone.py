@@ -151,7 +151,9 @@ def calculate_and_send_elapsed_time():
 @smart_inference_mode()
 def run(
     weights=ROOT / "yolov5s.pt",  # 모델 경로 또는 triton URL
-    source=ROOT / "data/images",  # 파일/디렉토리/URL/글로브/스크린/0(웹캠)
+    # source=ROOT / "data/images",  # 파일/디렉토리/URL/글로브/스크린/0(웹캠)
+    # 비디오 스트림 URL
+    source="http://192.168.219.100:8082",
     data=ROOT / "data/coco128.yaml",  # 데이터셋 yaml 경로
     imgsz=(640, 640),  # 추론 크기 (높이, 너비)
     conf_thres=0.25,  # 신뢰 임계값
