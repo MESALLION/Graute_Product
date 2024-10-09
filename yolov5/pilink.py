@@ -11,7 +11,7 @@ def enqueue_output(out, queue):
 def run_camera_stream():
     # detectdrone.py 실행
     process = subprocess.Popen(
-        ['python', r'C:\Users\User\Documents\workspace\Graute_Product\yolov5\detectdrone.py', '--weights', 'finalbest.pt', '--source', 'http://192.168.219.100:8082', '--imgsz', '640', '--conf-thres', '0.7'],
+        ['python', 'detectdrone.py', '--weights', 'finalbest.pt', '--source', 'http://192.168.219.100:8082', '--imgsz', '640', '--conf-thres', '0.7'],
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, bufsize=1
     )
 
@@ -35,7 +35,7 @@ def run_camera_stream():
 def run_gps_receiver():
     # rev_gps.py 실행
     process = subprocess.Popen(
-        ['python', r'C:\Users\User\Documents\workspace\Graute_Product\yolov5\GPS\rev_gps.py'],
+        ['python', r'GPS\rev_gps.py'],
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, bufsize=1
     )
 
