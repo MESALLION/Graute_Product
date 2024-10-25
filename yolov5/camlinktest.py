@@ -1,6 +1,7 @@
 import cv2
 
-stream_url = 'http://192.168.219.100:8082'  # 스트리밍 URL을 사용합니다.
+# 스트리밍 URL을 사용합니다.
+stream_url = '<IOT의 주소:8082>' 
 cap = cv2.VideoCapture(stream_url)
 
 if not cap.isOpened():
