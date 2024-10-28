@@ -34,13 +34,19 @@ import csv
 import os
 import platform
 import sys
-from pathlib import Path
 import torch
 
-# posixpath때문에
+#If you have a windows to solve use:
+from pathlib import Path
 import pathlib
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
+
+#If you have linux (or deploying for linux) use:
+#from pathlib import Path
+#import pathlib
+#temp = pathlib.PosixPath
+#pathlib.WindowsPath = pathlib.PosixPath
 
 # 결과값을 웹브라우저 넘기기 위한 import
 import requests

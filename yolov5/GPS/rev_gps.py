@@ -1,8 +1,8 @@
 import socket
 
-# sock통신
+# 소켓 주소는 사용하고자하는 인터넷 IP주소
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind(('<연결하고자하는 PC의 주소>', 5005))
+sock.bind(('인터넷 IP주소', 5005))
 
 # 출력 및 결과값
 while True:
