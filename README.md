@@ -25,7 +25,7 @@ PM : 이재구
 
     5. 마찬가지로 yolov5 폴더 안의 코드 부분에서도 IP설정
 
-    6. 그 후 IoT에선는 python send_all.py
+    6. 그 후 IoT에서는 python send_all.py
 
     7. 컴퓨터에서는 python pilink.py로 실행
 
