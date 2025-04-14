@@ -15,7 +15,7 @@ PM : 이재구
 # 프로그램 동작 소개
     1. 가상환경(Anaconda) 설치
 
-    2. pytoch 설치
+    2. pytorch 설치
 
     3. pip install -r requirements.txt로 의존성 다운로드
 
